@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ titulo }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+<header class="cabecera">
+  <div class="cabecera-izq">
+    <h1>{{ titulo }}</h1>
+    <span class="subtitulo">Panel de monitoreo · Escuela Industrial Superior "Pedro Domingo Murillo"</span>
+  </div>
+  <div class="cabecera-der">
+    {% if modo_simulacion %}<span class="etiqueta-simulacion">MODO SIMULACIÓN</span>{% endif %}
+    <span id="badge-conexion" class="badge badge-ok">Conectado</span>
+    {% if usuario %}
+      <span class="badge badge-usuario">{{ usuario.nombre }} · {{ usuario.rol }}</span>
+      {% if es_admin %}
+        <a class="boton boton-secundario boton-mini" href="{{ url_for('main.historial') }}">Historial</a>
+        <a class="boton boton-secundario boton-mini" href="{{ url_for('main.configuracion') }}">Configuración</a>
+      {% endif %}
+      <form method="POST" action="{{ url_for('auth.logout') }}" class="form-logout">
+        <button type="submit" class="boton boton-secundario boton-mini">Salir</button>
+      </form>
+    {% endif %}
+  </div>
+</header>
+
+<main class="contenido">
+  <!-- Estado principal -->
+  <section id="tarjeta-estado" class="tarjeta-estado estado-inicializando">
+    <div class="estado-titulo">
+      <span id="led" class="led led-apagado"></span>
+      <h2 id="estado-texto">INICIALIZANDO</h2>
+    </div>
+    <p id="estado-descripcion" class="estado-descripcion">Esperando primera lectura...</p>
+    <div class="medidor">
+      <div id="medidor-barra" class="medidor-barra" style="width: 0%"></div>
+      <span id="medidor-valor" class="medidor-valor">--</span>
+    </div>
+    <p class="medidor-escala">Escala simulada 0–1000 · umbrales configurables (no calibrados)</p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Diagnóstico de componentes</h2>
+    <ul id="diagnostico" class="diagnostico-lista">
+      <li><span class="diag-icono">·</span> sensor: —</li>
+      <li><span class="diag-icono">·</span> comunicación: —</li>
+      <li><span class="diag-icono">·</span> salida (válvula): —</li>
+    </ul>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Electroválvula</h2>
+    <p class="valvula-estado">Estado reportado: <strong id="valvula-estado">—</strong></p>
+    <p class="valvula-detalle" id="valvula-detalle">—</p>
+    {% if es_admin %}
+      <button id="btn-reabrir" class="boton boton-secundario" type="button">Reabrir válvula (manual)</button>
+    {% else %}
+      <p class="nota-rol">Solo el administrador puede reabrir la válvula.</p>
+    {% endif %}
+  </section>
+
+  <section class="tarjeta">
+    <h2>Ambiente (DHT22 simulado)</h2>
+    <div class="ambiente-grid">
+      <div><span class="etiqueta-ambiente">Temperatura</span><strong id="temperatura">—</strong></div>
+      <div><span class="etiqueta-ambiente">Humedad</span><strong id="humedad">—</strong></div>
+      <!-- Fila de "Fuente" eliminada del HTML -->
+      <div><span class="etiqueta-ambiente">Escenario</span><strong id="escenario">—</strong></div>
+    </div>
+  </section>
+
+  {% if modo_simulacion and es_admin %}
+  <section class="tarjeta">
+    <h2>Forzar escenario (solo simulación · admin)</h2>
+    <div class="botones-escenarios">
+      <button class="boton" data-escenario="normal">Normal</button>
+      <button class="boton" data-escenario="advertencia">Advertencia</button>
+      <button class="boton boton-peligro" data-escenario="peligro">Peligro</button>
+      <button class="boton" data-escenario="fallo_sensor">Fallo sensor</button>
+      <button class="boton" data-escenario="perdida_wifi">Pérdida Wi-Fi</button>
+      <button class="boton" data-escenario="fallo_valvula">Fallo válvula</button>
+    </div>
+  </section>
+  {% elif not es_admin %}
+  <section class="tarjeta">
+    <h2>Modo de operación</h2>
+    <p class="nota-rol">Su rol ({{ usuario.rol }}) es de solo lectura. Para forzar escenarios o reabrir la válvula, inicie sesión como administrador.</p>
+  </section>
+  {% endif %}
+
+  <section class="tarjeta">
+    <h2>Últimos eventos</h2>
+    <table class="tabla-eventos">
+      <thead><tr><th>Fecha/hora</th><th>Estado</th><th>Descripción</th></tr></thead>
+      <tbody id="tabla-eventos-cuerpo">
+        <tr><td colspan="3" class="vacio">Sin eventos registrados.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<footer class="pie">
+  <span>Prototipo académico · No reemplaza detectores certificados</span>
+  <span>Versión 1.0-M7 · <span id="pie-conexion">Conectado</span></span>
+</footer>
+
+<script src="{{ url_for('static', filename='js/panel.js') }}"></script>
+</body>
+</html>

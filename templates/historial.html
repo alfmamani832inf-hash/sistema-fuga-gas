@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Historial - {{ titulo }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+<header class="cabecera">
+  <div class="cabecera-izq">
+    <h1>{{ titulo }} · Historial de eventos</h1>
+    <span class="subtitulo">Administrador técnico</span>
+  </div>
+  <div class="cabecera-der">
+    <a class="boton boton-secundario boton-mini" href="{{ url_for('main.index') }}">Volver al panel</a>
+    {% if es_admin %}
+      <a class="boton boton-secundario boton-mini" href="{{ url_for('main.configuracion') }}">Configuración</a>
+    {% endif %}
+    <span class="badge badge-usuario">{{ usuario.nombre }} · {{ usuario.rol }}</span>
+    <form method="POST" action="{{ url_for('auth.logout') }}" class="form-logout">
+      <button type="submit" class="boton boton-secundario boton-mini">Salir</button>
+    </form>
+  </div>
+</header>
+
+<main class="contenido contenido-historial">
+  <section class="tarjeta tarjeta-ancha">
+    <h2>Filtros</h2>
+    <form method="GET" action="{{ url_for('main.historial') }}" class="form-filtros">
+      <div class="campo">
+        <label for="desde">Desde (fecha/hora)</label>
+        <input id="desde" name="desde" type="datetime-local"
+               value="{{ (filtros.desde or '')[:16] }}">
+      </div>
+      <div class="campo">
+        <label for="hasta">Hasta (fecha/hora)</label>
+        <input id="hasta" name="hasta" type="datetime-local"
+               value="{{ (filtros.hasta or '')[:16] }}">
+      </div>
+      <div class="campo">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+          <option value="">Todos</option>
+          {% for e in estados %}
+            <option value="{{ e }}" {% if filtros.estado == e %}selected{% endif %}>{{ e }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="campo">
+        <label for="limite">Límite</label>
+        <input id="limite" name="limite" type="number" min="1" max="500"
+               value="{{ filtros.limite }}">
+      </div>
+      <div class="acciones-form">
+        <button type="submit" class="boton boton-primario">Aplicar filtros</button>
+        <a class="boton boton-secundario" href="{{ url_for('main.historial') }}">Limpiar</a>
+        <a class="boton boton-secundario" href="{{ url_for('main.historial_export_csv', **request.args) }}">Exportar CSV</a>
+      </div>
+    </form>
+  </section>
+
+  <section class="tarjeta tarjeta-ancha">
+    <h2>Resultados ({{ total }} evento{{ total != 1 and 's' or '' }})</h2>
+    {% if eventos %}
+      <table class="tabla-eventos">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha/hora</th>
+            <th>Estado</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in eventos %}
+          <tr>
+            <td>{{ e.id_evento }}</td>
+            <td>{{ e.fecha_hora.replace('T', ' ')[:19] }}</td>
+            <td><span class="estado-tag estado-tag-{{ e.estado }}">{{ e.estado }}</span></td>
+            <td>{{ e.descripcion }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="vacio-historial">
+        {% if filtros.desde or filtros.hasta or filtros.estado %}
+          No se encontraron eventos con los filtros aplicados.
+        {% else %}
+          Aún no hay eventos registrados.
+        {% endif %}
+      </p>
+    {% endif %}
+  </section>
+</main>
+
+<footer class="pie">
+  <span>Prototipo académico · No reemplaza detectores certificados</span>
+  <span>Versión 1.0-M8</span>
+</footer>
+</body>
+</html>

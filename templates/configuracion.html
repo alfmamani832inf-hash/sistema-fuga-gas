@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuración - {{ titulo }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+<header class="cabecera">
+  <div class="cabecera-izq">
+    <h1>{{ titulo }} · Configuración</h1>
+    <span class="subtitulo">Solo administrador técnico</span>
+  </div>
+  <div class="cabecera-der">
+    <a class="boton boton-secundario boton-mini" href="{{ url_for('main.index') }}">Volver al panel</a>
+    <span class="badge badge-usuario">{{ usuario.nombre }} · {{ usuario.rol }}</span>
+    <form method="POST" action="{{ url_for('auth.logout') }}" class="form-logout">
+      <button type="submit" class="boton boton-secundario boton-mini">Salir</button>
+    </form>
+  </div>
+</header>
+
+<main class="contenido contenido-config">
+  <section class="tarjeta tarjeta-ancha">
+    <h2>Parámetros del sistema</h2>
+    <p class="aviso-importante">
+      ⚠️ Los umbrales son <strong>valores simulados pendientes de calibración real</strong>.
+      No usar como referencia de seguridad. Deben validarse con el sensor físico en la versión 2.0.
+    </p>
+
+    <form id="form-config" class="form-config">
+      <div class="campo">
+        <label for="mq2_umbral_advertencia">Umbral de ADVERTENCIA (MQ-2)</label>
+        <input id="mq2_umbral_advertencia" name="mq2_umbral_advertencia" type="number" step="1" min="0" required>
+        <span class="campo-ayuda">Zona NORMAL por debajo de este valor.</span>
+      </div>
+
+      <div class="campo">
+        <label for="mq2_umbral_peligro">Umbral de PELIGRO (MQ-2)</label>
+        <input id="mq2_umbral_peligro" name="mq2_umbral_peligro" type="number" step="1" min="0" required>
+        <span class="campo-ayuda">Zona PELIGRO igual o por encima de este valor.</span>
+      </div>
+
+      <div class="campo">
+        <label for="mq2_rango_min">Rango mínimo del MQ-2</label>
+        <input id="mq2_rango_min" name="mq2_rango_min" type="number" step="1" required>
+      </div>
+
+      <div class="campo">
+        <label for="mq2_rango_max">Rango máximo del MQ-2</label>
+        <input id="mq2_rango_max" name="mq2_rango_max" type="number" step="1" required>
+      </div>
+
+      <div class="campo">
+        <label for="intervalo_lectura_seg">Intervalo de lectura (segundos)</label>
+        <input id="intervalo_lectura_seg" name="intervalo_lectura_seg" type="number" step="0.1" min="0.5" required>
+      </div>
+
+      <div id="mensaje-form" class="flash" style="display:none"></div>
+
+      <div class="acciones-form">
+        <button type="submit" class="boton boton-primario">Guardar cambios</button>
+        <button type="button" id="btn-recargar" class="boton boton-secundario">Recargar</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="tarjeta tarjeta-ancha">
+    <h2>Última actualización</h2>
+    <table class="tabla-eventos">
+      <thead><tr><th>Parámetro</th><th>Valor</th><th>Fecha de actualización</th></tr></thead>
+      <tbody>
+        {% for nombre, datos in configuracion.items() %}
+        <tr>
+          <td><code>{{ nombre }}</code></td>
+          <td>{{ datos.valor }}</td>
+          <td>{{ datos.fecha_actualizacion or "—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+const CAMPOS = ["mq2_umbral_advertencia","mq2_umbral_peligro","mq2_rango_min","mq2_rango_max","intervalo_lectura_seg"];
+
+async function cargarConfiguracion() {
+  const r = await fetch("/api/configuracion");
+  if (!r.ok) { alert("No se pudo cargar la configuración"); return; }
+  const datos = await r.json();
+  CAMPOS.forEach(function (nombre) {
+    if (datos[nombre]) document.getElementById(nombre).value = datos[nombre].valor;
+  });
+}
+
+async function guardarConfiguracion(evento) {
+  evento.preventDefault();
+  const cuerpo = {};
+  CAMPOS.forEach(function (nombre) {
+    cuerpo[nombre] = document.getElementById(nombre).value;
+  });
+  const mensaje = document.getElementById("mensaje-form");
+  mensaje.style.display = "none";
+
+  const r = await fetch("/api/configuracion", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(cuerpo),
+  });
+  const datos = await r.json();
+  mensaje.style.display = "block";
+  if (r.ok) {
+    mensaje.className = "flash flash-ok";
+    mensaje.textContent = "Configuración guardada.";
+    setTimeout(function () { window.location.reload(); }, 800);
+  } else {
+    mensaje.className = "flash flash-error";
+    mensaje.textContent = "Error: " + (datos.error || "no se pudo guardar");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("form-config").addEventListener("submit", guardarConfiguracion);
+  document.getElementById("btn-recargar").addEventListener("click", cargarConfiguracion);
+  cargarConfiguracion();
+});
+</script>
+</body>
+</html>

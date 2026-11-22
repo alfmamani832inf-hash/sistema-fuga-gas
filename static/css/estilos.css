@@ -1,0 +1,305 @@
+/* =====================================================================
+   Estilos del panel de monitoreo (M6).
+   Responsive: se ve bien en celular y PC (RNF06).
+   ===================================================================== */
+
+:root {
+  --fondo: #0f1720;
+  --panel: #18232f;
+  --borde: #2a3a4a;
+  --texto: #e6edf3;
+  --suave: #9fb0c0;
+  --acento: #38bdf8;
+  --verde: #22c55e;
+  --amarillo: #f59e0b;
+  --rojo: #ef4444;
+  --azul: #3b82f6;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+/* --- Cabecera --- */
+.cabecera {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--borde);
+}
+.cabecera h1 { margin: 0; font-size: 1.05rem; line-height: 1.3; }
+.subtitulo { color: var(--suave); font-size: 0.75rem; display: block; margin-top: 2px; }
+.cabecera-der { display: flex; gap: 8px; align-items: center; }
+.etiqueta-simulacion {
+  padding: 6px 12px; border-radius: 999px;
+  background: rgba(245,158,11,.15);
+  border: 1px solid var(--amarillo);
+  color: var(--amarillo);
+  font-size: 0.7rem; font-weight: 700; letter-spacing: .06em;
+}
+.badge {
+  padding: 6px 10px; border-radius: 999px;
+  font-size: 0.7rem; font-weight: 700;
+}
+.badge-ok { background: rgba(34,197,94,.2); color: var(--verde); border: 1px solid var(--verde); }
+.badge-off { background: rgba(239,68,68,.2); color: var(--rojo); border: 1px solid var(--rojo); }
+
+/* --- Layout --- */
+.contenido {
+  flex: 1;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  grid-template-columns: 1fr;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+@media (min-width: 900px) {
+  .contenido { grid-template-columns: repeat(2, 1fr); }
+  .contenido > .tarjeta-estado { grid-column: 1 / -1; }
+}
+
+/* --- Tarjetas --- */
+.tarjeta {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 16px;
+}
+.tarjeta h2 { margin: 0 0 10px 0; font-size: 0.95rem; color: var(--acento); }
+
+/* --- Estado principal --- */
+.tarjeta-estado {
+  padding: 22px;
+  border-radius: 12px;
+  border: 1px solid var(--borde);
+  transition: background-color .3s;
+}
+.estado-normal { background: linear-gradient(135deg, rgba(34,197,94,.15), rgba(34,197,94,.05)); border-color: var(--verde); }
+.estado-advertencia { background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(245,158,11,.05)); border-color: var(--amarillo); }
+.estado-peligro { background: linear-gradient(135deg, rgba(239,68,68,.25), rgba(239,68,68,.05)); border-color: var(--rojo); animation: pulso 1s infinite; }
+.estado-fallo_sensor { background: linear-gradient(135deg, rgba(239,68,68,.15), rgba(239,68,68,.05)); border-color: var(--rojo); }
+.estado-inicializando { background: var(--panel); }
+.estado-no_actualizado { background: #2a2a2a; border-color: #555; opacity: .85; }
+
+@keyframes pulso { 0%,100% { border-color: var(--rojo); } 50% { border-color: rgba(239,68,68,.3); } }
+
+.estado-titulo { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+.estado-titulo h2 { margin: 0; font-size: 1.8rem; letter-spacing: 0.02em; }
+.estado-descripcion { margin: 0 0 14px 0; color: var(--suave); font-size: 0.9rem; }
+
+/* --- LED --- */
+.led {
+  width: 26px; height: 26px; border-radius: 50%;
+  box-shadow: 0 0 12px transparent;
+  background: #444;
+  flex-shrink: 0;
+}
+.led-verde { background: var(--verde); box-shadow: 0 0 16px var(--verde); }
+.led-amarillo { background: var(--amarillo); box-shadow: 0 0 16px var(--amarillo); }
+.led-rojo { background: var(--rojo); box-shadow: 0 0 16px var(--rojo); }
+.led-azul { background: var(--azul); box-shadow: 0 0 16px var(--azul); }
+.led-apagado { background: #444; box-shadow: none; }
+.led-parpadeante { animation: parpadeo 0.5s infinite; }
+@keyframes parpadeo { 0%,49% { opacity: 1; } 50%,100% { opacity: 0.15; } }
+
+/* --- Medidor --- */
+.medidor {
+  position: relative;
+  height: 26px;
+  background: rgba(0,0,0,.3);
+  border-radius: 13px;
+  overflow: hidden;
+  border: 1px solid var(--borde);
+}
+.medidor-barra {
+  height: 100%;
+  background: linear-gradient(90deg, var(--verde), var(--amarillo), var(--rojo));
+  transition: width .4s;
+  width: 0%;
+}
+.medidor-valor {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 700; font-size: 0.8rem;
+  text-shadow: 0 1px 2px #000;
+}
+.medidor-escala { margin: 6px 0 0 0; font-size: 0.7rem; color: var(--suave); }
+
+/* --- Diagnóstico --- */
+.diagnostico-lista { list-style: none; margin: 0; padding: 0; }
+.diagnostico-lista li {
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--borde);
+  font-size: 0.88rem;
+}
+.diagnostico-lista li:last-child { border-bottom: none; }
+.diag-icono { display: inline-block; width: 20px; text-align: center; font-weight: 700; }
+.diag-ok { color: var(--verde); }
+.diag-error { color: var(--rojo); }
+
+/* --- Válvula --- */
+.valvula-estado { font-size: 0.95rem; margin: 0 0 6px 0; }
+.valvula-detalle { font-size: 0.8rem; color: var(--suave); margin: 0 0 12px 0; }
+
+/* --- Ambiente --- */
+.ambiente-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.ambiente-grid > div {
+  background: rgba(0,0,0,.2); padding: 10px; border-radius: 8px;
+}
+.etiqueta-ambiente { display: block; font-size: 0.7rem; color: var(--suave); }
+.ambiente-grid strong { font-size: 1rem; }
+
+/* --- Botones --- */
+.botones-escenarios { display: flex; flex-wrap: wrap; gap: 8px; }
+.boton {
+  border: 1px solid var(--borde);
+  background: rgba(56,189,248,.1);
+  color: var(--texto);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background .15s;
+}
+.boton:hover { background: rgba(56,189,248,.25); }
+.boton-peligro { background: rgba(239,68,68,.2); border-color: var(--rojo); }
+.boton-peligro:hover { background: rgba(239,68,68,.4); }
+.boton-secundario { background: rgba(159,176,192,.1); }
+
+/* --- Tabla eventos --- */
+.tabla-eventos { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.tabla-eventos th, .tabla-eventos td { padding: 8px; text-align: left; border-bottom: 1px solid var(--borde); }
+.tabla-eventos th { color: var(--suave); font-weight: 500; }
+.tabla-eventos .vacio { color: var(--suave); text-align: center; font-style: italic; }
+.estado-tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
+.estado-tag-NORMAL { background: rgba(34,197,94,.2); color: var(--verde); }
+.estado-tag-ADVERTENCIA { background: rgba(245,158,11,.25); color: var(--amarillo); }
+.estado-tag-PELIGRO { background: rgba(239,68,68,.25); color: var(--rojo); }
+.estado-tag-FALLO_SENSOR { background: rgba(239,68,68,.15); color: var(--rojo); }
+.estado-tag-INICIALIZANDO { background: rgba(159,176,192,.2); color: var(--suave); }
+
+/* --- Pie --- */
+.pie {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid var(--borde);
+  color: var(--suave);
+  font-size: 0.72rem;
+}
+
+
+/* =====================================================================
+   M7: estilos de login, roles y configuración.
+   ===================================================================== */
+
+/* --- Login --- */
+.login-contenedor {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.login-caja {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 28px;
+  width: 100%; max-width: 400px;
+}
+.login-caja h1 { margin: 0 0 4px 0; font-size: 1.1rem; }
+.login-subtitulo { margin: 0 0 18px 0; color: var(--suave); font-size: 0.85rem; }
+.login-caja label { display: block; margin: 12px 0 4px; font-size: 0.85rem; color: var(--suave); }
+.login-caja input {
+  width: 100%; padding: 10px 12px;
+  background: rgba(0,0,0,.25); border: 1px solid var(--borde);
+  border-radius: 8px; color: var(--texto); font-size: 0.95rem;
+}
+.login-caja input:focus { outline: none; border-color: var(--acento); }
+.login-caja button { margin-top: 18px; width: 100%; }
+.login-nota { margin-top: 18px; font-size: 0.75rem; color: var(--suave); }
+
+/* --- Flash --- */
+.flash {
+  padding: 10px 12px; border-radius: 8px; margin: 12px 0;
+  font-size: 0.85rem;
+}
+.flash-error { background: rgba(239,68,68,.15); color: var(--rojo); border: 1px solid var(--rojo); }
+.flash-ok { background: rgba(34,197,94,.15); color: var(--verde); border: 1px solid var(--verde); }
+
+/* --- Badges de usuario --- */
+.badge-usuario {
+  background: rgba(56,189,248,.15); color: var(--acento);
+  border: 1px solid var(--acento);
+}
+.form-logout { display: inline; margin: 0; }
+.boton-mini { padding: 5px 10px; font-size: 0.75rem; }
+.boton-primario { background: rgba(56,189,248,.25); border-color: var(--acento); font-weight: 700; }
+
+/* --- Nota de rol --- */
+.nota-rol { color: var(--suave); font-size: 0.8rem; font-style: italic; }
+
+/* --- Configuración --- */
+.contenido-config { grid-template-columns: 1fr; }
+@media (min-width: 900px) { .contenido-config { grid-template-columns: 1fr; } }
+.tarjeta-ancha { grid-column: 1 / -1; }
+.aviso-importante {
+  background: rgba(245,158,11,.12); border: 1px solid var(--amarillo);
+  color: var(--amarillo); padding: 10px 14px; border-radius: 8px;
+  font-size: 0.85rem; margin-bottom: 16px;
+}
+.form-config { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 700px) { .form-config { grid-template-columns: 1fr 1fr; } }
+.campo { display: flex; flex-direction: column; gap: 4px; }
+.campo label { font-size: 0.85rem; color: var(--suave); }
+.campo input {
+  padding: 10px 12px; background: rgba(0,0,0,.25);
+  border: 1px solid var(--borde); border-radius: 8px;
+  color: var(--texto); font-size: 0.95rem;
+}
+.campo input:focus { outline: none; border-color: var(--acento); }
+.campo-ayuda { font-size: 0.72rem; color: var(--suave); }
+.acciones-form { grid-column: 1 / -1; display: flex; gap: 10px; margin-top: 8px; }
+
+
+/* =====================================================================
+   M8: estilos del historial.
+   ===================================================================== */
+.contenido-historial { grid-template-columns: 1fr; }
+@media (min-width: 900px) { .contenido-historial { grid-template-columns: 1fr; } }
+.form-filtros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (min-width: 700px) { .form-filtros { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+.form-filtros .acciones-form { grid-column: 1 / -1; }
+.form-filtros select,
+.form-filtros input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, .25);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  color: var(--texto);
+  font-size: .95rem;
+}
+.form-filtros select:focus,
+.form-filtros input:focus { outline: none; border-color: var(--acento); }
+.vacio-historial {
+  text-align: center;
+  color: var(--suave);
+  font-style: italic;
+  padding: 24px 12px;
+}

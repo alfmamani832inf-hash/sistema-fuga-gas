@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesion - {{ titulo }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+<main class="login-contenedor">
+  <div class="login-caja">
+    <h1>{{ titulo }}</h1>
+    <p class="login-subtitulo">Acceso al panel de monitoreo</p>
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% if mensajes %}
+        {% for categoria, mensaje in mensajes %}
+          <div class="flash flash-{{ categoria }}">{{ mensaje }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+      <label for="nombre">Usuario</label>
+      <input id="nombre" name="nombre" type="text" required autofocus>
+
+      <label for="password">Contrasena</label>
+      <input id="password" name="password" type="password" required>
+
+      <button type="submit" class="boton boton-primario">Entrar</button>
+    </form>
+
+    <p class="login-nota">
+      Prototipo academico. Los usuarios de demostracion se crean con <code>seed.py</code>.
+    </p>
+  </div>
+</main>
+</body>
+</html>
